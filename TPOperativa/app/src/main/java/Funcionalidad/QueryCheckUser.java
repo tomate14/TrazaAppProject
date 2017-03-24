@@ -21,6 +21,7 @@ public class QueryCheckUser extends AbsQuery {
         this.password = password;
     }
     @Override
+
     public void execute(String dateBase, String user, String pass){
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -32,6 +33,11 @@ public class QueryCheckUser extends AbsQuery {
                            "  AND PASS='"+password+"'";
             st = (Statement) conn.createStatement();
             ResultSet resultSet = ((java.sql.Statement) st).executeQuery(query);
+            if(resultSet.next()){
+               this.existe = true;
+            }else{
+                this.existe = false;
+            }
             conn.close();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

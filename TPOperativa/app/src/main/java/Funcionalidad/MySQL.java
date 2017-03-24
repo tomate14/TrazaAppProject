@@ -13,7 +13,7 @@ import java.util.Vector;
  * Created by Maxi on 23/3/2017.
  */
 
-public class MySQL extends Thread{
+public class MySQL{
 
     private String dateBase;
     private String user;
@@ -33,6 +33,29 @@ public class MySQL extends Thread{
         this.query="";
     }
 
+    public String getDateBase() {
+        return dateBase;
+    }
+
+    public void setDateBase(String dateBase) {
+        this.dateBase = dateBase;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getPass() {
+        return pass;
+    }
+
+    public void setPass(String pass) {
+        this.pass = pass;
+    }
 
     public void setConsulta(AbsQuery query) {
         this.consulta = query;
@@ -50,7 +73,7 @@ public class MySQL extends Thread{
         this.query = query;
     }
 
-    public void run() {
+   /* public void run() {
             consulta.execute(dateBase,user,pass);
-    }
+    }*/
 }
