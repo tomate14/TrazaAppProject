@@ -18,10 +18,6 @@ public class MySQL{
     private String dateBase;
     private String user;
     private String pass;
-    private boolean used;
-    private AbsQuery consulta;
-    private String query;
-
 
 
 
@@ -29,8 +25,6 @@ public class MySQL{
         this.user = user;
         this.pass = pass;
         this.dateBase = db;
-        this.used = true;
-        this.query="";
     }
 
     public String getDateBase() {
@@ -57,23 +51,5 @@ public class MySQL{
         this.pass = pass;
     }
 
-    public void setConsulta(AbsQuery query) {
-        this.consulta = query;
-    }
 
-    public AbsQuery getConsulta() {
-        return consulta;
-    }
-
-    public String getQuery() {
-        return query;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-   /* public void run() {
-            consulta.execute(dateBase,user,pass);
-    }*/
 }
