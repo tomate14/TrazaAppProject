@@ -30,6 +30,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -38,6 +39,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import Funcionalidad.AbsQuery;
 import Funcionalidad.MySQL;
@@ -66,13 +68,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
     private Button mEmailSignInButton;
+
+    public static final MySQL Sql = new MySQL("operativa","root","");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,32 +202,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
-        /*
-        * Si esta todo bien, abro la nueva interfaz para operar
-        */
-            MySQL db = new MySQL("operativa","root","");
+            mAuthTask.execute();
 
-            try {
-                Class.forName("com.mysql.jdbc.Driver");
-                Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.2.2:3306/"+db.getDateBase(), db.getUser(), db.getPass());
-                Statement st = conn.createStatement();
-                String query = "SELECT * FROM usuario " +
-                               "WHERE EMAIL='"+email+"'" +
-                               "  AND PASS='"+password+"'";
-                st = (Statement) conn.createStatement();
-                ResultSet resultSet = ((java.sql.Statement) st).executeQuery(query);
-                if(resultSet.next()){
-                    Log.d("EXISTE","VAMO LO PIBEEEE");
-                    Intent mainActivity = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(mainActivity);
-                }
-                conn.close();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
 
         }
     }
@@ -337,10 +316,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
+        private Boolean resultado;
+
 
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
+            resultado=false;
         }
 
         @Override
@@ -348,10 +330,35 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // TODO: attempt authentication against a network service.
 
             try {
-                // Simulate network access.
-                Thread.sleep(2000);
+                Log.d("CONECTANDO","INICIANDO CONEXION");
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.2.2:3306/" +
+                        Sql.getDateBase(), Sql.getUser(), Sql.getPass());
+
+                String query = "SELECT * FROM USUARIO " +
+                        "WHERE EMAIL='"+this.mEmail+"'" +
+                        "  AND PASS='"+this.mPassword+"'";
+                Statement st = conn.createStatement();
+                ResultSet resultSet = st.executeQuery(query);
+                if(resultSet.next()){
+                   // if(validUser(resultSet)){ FALTA EL CONTROL DEL USUARIO
+                        Log.d("EXISTE","Existe el usuario, piola");
+                        conn.close();
+                        //crear el usuario
+                        Intent mainActivity = new Intent(LoginActivity.this,MainActivity.class);
+                        startActivity(mainActivity);
+                        Thread.sleep(2000);
+                    }else{
+                        finish();
+                        conn.close();
+                    }
+                //}
             } catch (InterruptedException e) {
                 return false;
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
 
             for (String credential : DUMMY_CREDENTIALS) {
@@ -365,7 +372,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // TODO: register the new account here.
             return true;
         }
+        private boolean validUser(ResultSet resultSet){
+            try {
+                String emailResult = resultSet.getString("email");
+                String passResult  = resultSet.getString("password");
+                if(emailResult.equals(this.mEmail) && passResult.equals(this.mPassword)  ){
+                    return true;
+                }
+            } catch (SQLException e) {
 
+                e.printStackTrace();
+            }
+            return false;
+
+        }
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
@@ -377,13 +397,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }
+            Log.i("Inside AsyncTask", "myAsyncTask finished its task. Returning data to caller...");
         }
-
+        @Override
+        protected void onPreExecute() {
+            Log.i("Inside AsyncTask", "myAsyncTask is abut to start...");
+        }
         @Override
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
         }
     }
+
+
+
 }
 
