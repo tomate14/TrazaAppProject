@@ -355,7 +355,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                "  AND PASSWORD='"+this.mPassword+"'";
                 //Statement st = conn.createStatement();
                 //ResultSet resultSet = st.executeQuery(query);
-                ResultSet resultSet = Sql.getStatement().executeQuery(query);
+                ResultSet resultSet = Sql.getResultset(query);
                 Log.d("CANTIDAD","La cantidad es:"+String.valueOf(resultSet.getMetaData().getColumnCount()) );
                 if(resultSet.next()){
                         Log.d("EXISTE","Existe el usuario, piola");
