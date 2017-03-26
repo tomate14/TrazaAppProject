@@ -10,5 +10,6 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setTitle("Crear Cuenta");
         setContentView(R.layout.activity_register);
+
     }
 }
