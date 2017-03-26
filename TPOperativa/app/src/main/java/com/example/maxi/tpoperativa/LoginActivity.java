@@ -46,6 +46,7 @@ import Funcionalidad.MySQL;
 import Funcionalidad.QueryCheckUser;
 
 import static android.Manifest.permission.READ_CONTACTS;
+import static android.widget.Toast.makeText;
 
 /**
  * A login screen that offers login via email/password.
@@ -74,12 +75,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
     private Button mEmailSignInButton;
+    private Button mRegister;
 
-    public static final MySQL Sql = new MySQL("operativa","root","");
+    //public static final MySQL Sql = new MySQL("operativa","root","");
+    public MySQL Sql = new MySQL("operativa","root","");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Login / Registrar");
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -97,12 +101,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
         mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mRegister = (Button)findViewById(R.id.btn_register);
+
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
         });
+        mRegister.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent mainActivity = new Intent(LoginActivity.this,RegisterActivity.class);
+                startActivity(mainActivity);
+            }
+        });
+
 
 
         mLoginFormView = findViewById(R.id.login_form);
@@ -200,10 +215,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
+
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute();
-
+            showProgress(true);
 
         }
     }
@@ -331,32 +346,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             try {
                 Log.d("CONECTANDO","INICIANDO CONEXION");
-                Class.forName("com.mysql.jdbc.Driver");
+                /*Class.forName("com.mysql.jdbc.Driver");
                 Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.2.2:3306/" +
-                        Sql.getDateBase(), Sql.getUser(), Sql.getPass());
+                        Sql.getDateBase(), Sql.getUser(), Sql.getPass());*/
 
-                String query = "SELECT * FROM USUARIO " +
-                        "WHERE EMAIL='"+this.mEmail+"'" +
-                        "  AND PASS='"+this.mPassword+"'";
-                Statement st = conn.createStatement();
-                ResultSet resultSet = st.executeQuery(query);
+                String query = "SELECT * FROM USERS " +
+                               "WHERE email='"+this.mEmail+"'" +
+                               "  AND PASSWORD='"+this.mPassword+"'";
+                //Statement st = conn.createStatement();
+                //ResultSet resultSet = st.executeQuery(query);
+                ResultSet resultSet = Sql.getStatement().executeQuery(query);
+                Log.d("CANTIDAD","La cantidad es:"+String.valueOf(resultSet.getMetaData().getColumnCount()) );
                 if(resultSet.next()){
-                   // if(validUser(resultSet)){ FALTA EL CONTROL DEL USUARIO
                         Log.d("EXISTE","Existe el usuario, piola");
-                        conn.close();
+                    // conn.close();
+
                         //crear el usuario
                         Intent mainActivity = new Intent(LoginActivity.this,MainActivity.class);
                         startActivity(mainActivity);
                         Thread.sleep(2000);
                     }else{
-                        finish();
-                        conn.close();
+
+                       // finish();
+                    // conn.close();
                     }
                 //}
             } catch (InterruptedException e) {
                 return false;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
