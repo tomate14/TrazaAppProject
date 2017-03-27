@@ -15,7 +15,6 @@ import java.sql.Statement;
  */
 
 public class MySQL{
-
     private String dateBase;
     private String user;
     private String pass;
