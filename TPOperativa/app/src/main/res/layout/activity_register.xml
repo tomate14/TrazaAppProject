@@ -9,16 +9,18 @@
 
 
         <ScrollView
-            android:layout_width="545dp"
-            android:layout_height="778dp"
+            android:layout_width="489dp"
+            android:layout_height="810dp"
             android:clickable="false"
-            tools:layout_editor_absoluteX="26dp"
-            tools:layout_editor_absoluteY="24dp">
+            tools:layout_editor_absoluteX="52dp"
+            tools:layout_editor_absoluteY="8dp">
 
                 <LinearLayout
+                    android:id="@+id/simple_spinner_dropdown_item"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:weightSum="3">
 
                         <EditText
                             android:id="@+id/txt_nombre"
@@ -33,7 +35,7 @@
 
                         <EditText
                             android:id="@+id/txt_email"
-                            android:layout_width="569dp"
+                            android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:layout_marginTop="8dp"
                             android:background="@color/common_google_signin_btn_text_dark_default"
@@ -45,7 +47,7 @@
 
                         <EditText
                             android:id="@+id/txt_username"
-                            android:layout_width="569dp"
+                            android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:layout_marginTop="8dp"
                             android:background="@color/common_google_signin_btn_text_dark_default"
@@ -57,7 +59,7 @@
 
                         <EditText
                             android:id="@+id/txt_direccion"
-                            android:layout_width="569dp"
+                            android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:layout_marginTop="8dp"
                             android:background="@color/common_google_signin_btn_text_dark_default"
@@ -69,7 +71,7 @@
 
                         <EditText
                             android:id="@+id/txt_telefono"
-                            android:layout_width="569dp"
+                            android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:layout_marginTop="8dp"
                             android:background="@color/common_google_signin_btn_text_dark_default"
@@ -81,7 +83,7 @@
 
                         <EditText
                             android:id="@+id/txt_password"
-                            android:layout_width="569dp"
+                            android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:layout_marginTop="8dp"
                             android:background="@color/common_google_signin_btn_text_dark_default"
@@ -90,6 +92,19 @@
                             android:inputType="textPassword"
                             app:layout_constraintTop_toBottomOf="@+id/txt_telefono"
                             tools:layout_editor_absoluteX="7dp" />
+
+                        <TextView
+                            android:id="@+id/textView2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    <ListView
+                        android:id="@+id/listCities"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+
                 </LinearLayout>
-        </ScrollView>
+
+</ScrollView>
 </android.support.constraint.ConstraintLayout>

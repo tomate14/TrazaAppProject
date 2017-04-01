@@ -43,7 +43,6 @@ import java.util.concurrent.ExecutionException;
 
 import Funcionalidad.AbsQuery;
 import Funcionalidad.MySQL;
-import Funcionalidad.QueryCheckUser;
 
 import static android.Manifest.permission.READ_CONTACTS;
 import static android.widget.Toast.makeText;
@@ -78,7 +77,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private Button mRegister;
 
     //public static final MySQL Sql = new MySQL("operativa","root","");
-    public MySQL Sql = new MySQL("operativa","root","");
+    public static MySQL Sql = new MySQL("operativa","root","");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
