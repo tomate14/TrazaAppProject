@@ -25,7 +25,7 @@
                         <EditText
                             android:id="@+id/txt_nombre"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
+                            android:layout_height="match_parent"
                             android:background="@android:color/white"
                             android:ems="10"
                             android:inputType="textPersonName"
@@ -36,7 +36,7 @@
                         <EditText
                             android:id="@+id/txt_email"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
+                            android:layout_height="match_parent"
                             android:layout_marginTop="8dp"
                             android:background="@color/common_google_signin_btn_text_dark_default"
                             android:ems="10"
@@ -48,7 +48,7 @@
                         <EditText
                             android:id="@+id/txt_username"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
+                            android:layout_height="match_parent"
                             android:layout_marginTop="8dp"
                             android:background="@color/common_google_signin_btn_text_dark_default"
                             android:ems="10"
@@ -60,7 +60,7 @@
                         <EditText
                             android:id="@+id/txt_direccion"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
+                            android:layout_height="match_parent"
                             android:layout_marginTop="8dp"
                             android:background="@color/common_google_signin_btn_text_dark_default"
                             android:ems="10"
@@ -72,7 +72,7 @@
                         <EditText
                             android:id="@+id/txt_telefono"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
+                            android:layout_height="match_parent"
                             android:layout_marginTop="8dp"
                             android:background="@color/common_google_signin_btn_text_dark_default"
                             android:ems="10"
@@ -84,7 +84,7 @@
                         <EditText
                             android:id="@+id/txt_password"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
+                            android:layout_height="match_parent"
                             android:layout_marginTop="8dp"
                             android:background="@color/common_google_signin_btn_text_dark_default"
                             android:ems="10"
@@ -96,12 +96,13 @@
                         <TextView
                             android:id="@+id/textView2"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="match_parent" />
 
-                    <ListView
-                        android:id="@+id/listCities"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        <Spinner
+                            android:id="@+id/spinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@android:drawable/screen_background_light" />
 
 
                 </LinearLayout>

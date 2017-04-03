@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import Funcionalidad.MySQL;
 
@@ -29,7 +30,9 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView Direccion;
     private TextView Telefono;
     private TextView Password;
-    private ListView Ciudades;
+    private Spinner spinnerCities;
+
+    private List listCities = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,34 +81,21 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-       /* this.Ciudades = (ListView) findViewById(R.id.listCities);
-        this.Ciudades.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("CIUDAD:","HAGO CLICK");
-                /*GetCitiesTask citiesTask = new GetCitiesTask();
-                citiesTask.execute();
-                ResultSet cities = citiesTask.getCities();
-                LinkedList ciudadesAux = new LinkedList();
-                try {
-                    //CARGO AL ARRAY LA LISTA DE LA BASE DE DATOS DE LAS CIUDADES
-                    while (cities.next()){
-                       ciudadesAux.add(cities.getInt("id"),cities.getString("name"));
-                        Log.d("CIUDAD:",ciudadesAux.getLast().toString());
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+        this.spinnerCities = (Spinner) findViewById(R.id.spinner);
+        updateSpinner();
 
-            }
-        });*/
         if(verificaDatos()){
             //Llamar a insert a la base calculando la posicion donde esta el tipo
         }
 
     }
 
+    private void updateSpinner(){
+        Log.d("CIUDAD:","HAGO CLICK");
+        GetCitiesTask citiesTask = new GetCitiesTask();
+        citiesTask.execute();
 
+    }
     private boolean verificaDatos() {
         if(String.valueOf(this.Nombre.getText()).length() != 0 || String.valueOf(this.Email.getText()).length() != 0
                 ||String.valueOf(this.Usuario.getText()).length() != 0 || String.valueOf(this.Direccion.getText()).length() != 0
@@ -116,21 +106,39 @@ public class RegisterActivity extends AppCompatActivity {
 
     //TAREA ASINCRONA PARA PODER LEVANTAR TODAS LAS CIUDADES
     //DE LA BASE EN EL RESULTSET
-    public class GetCitiesTask extends AsyncTask<Void, Void, Boolean>{
-        private ResultSet ciudades;
+    //Tercer parametro lo que retorna doInBackgroud
+    public class GetCitiesTask extends AsyncTask<Void, Void, ResultSet>{
+        //private ResultSet ciudades;
 
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            String query = "SELECT NAME,ID" +
-                           "FROM LOCATIONS";
-            this.ciudades = LoginActivity.Sql.getResultset(query);
+        //protected Boolean doInBackground(Void... params) {
+        protected ResultSet doInBackground(Void... params) {
 
-            return true;
+            ResultSet ciudades;
+            String query = "SELECT *" +
+                           "FROM locations";
+            ciudades = LoginActivity.Sql.getResultset(query);
+
+            return ciudades;
         }
 
-        public ResultSet getCities(){
-            return this.ciudades;
+        protected void onPostExecute(final ResultSet cities) {
+            try {
+                int index = 0;
+                while (cities.next()){
+                    listCities.add(cities.getString("name"));
+                    Log.d("Prueba",listCities.get(index).toString());
+                    index+=1;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            ArrayAdapter spinner_adapter;
+            spinner_adapter = new ArrayAdapter(RegisterActivity.this, android.R.layout.simple_spinner_item, listCities);
+            spinner_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerCities.setAdapter(spinner_adapter);
         }
+
     }
 }
