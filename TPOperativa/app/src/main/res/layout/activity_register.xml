@@ -94,15 +94,28 @@
                             tools:layout_editor_absoluteX="7dp" />
 
                         <TextView
-                            android:id="@+id/textView2"
+                            android:id="@+id/sepa1"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent" />
 
                         <Spinner
                             android:id="@+id/spinner"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="30dp"
                             android:background="@android:drawable/screen_background_light" />
+
+                        <TextView
+                            android:id="@+id/sepa2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                        <Button
+                            android:id="@+id/btnFinalizar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/colorPrimary"
+                            android:text="Finalizar"
+                            android:textColor="@android:color/background_light"/>
 
 
                 </LinearLayout>
