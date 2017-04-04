@@ -49,17 +49,12 @@ public class GetCitiesTask extends AsyncTask<Void, Void, ResultSet> {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        ArrayAdapter spinner_adapter;
-        spinner_adapter = new ArrayAdapter(RegisterActivity.this, android.R.layout.simple_spinner_item, listCities);
+       /* ArrayAdapter spinner_adapter;
+        spinner_adapter = new ArrayAdapter(RegisterActivity, android.R.layout.simple_spinner_item, listCities);
         spinner_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCities.setAdapter(spinner_adapter);
+        spinnerCities.setAdapter(spinner_adapter);*/
     }
 
-    public Spinner getSpinnerCities() {
-        return spinnerCities;
-    }
 
-    public void setSpinnerCities(Spinner spinnerCities) {
-        this.spinnerCities = spinnerCities;
-    }
+
 }

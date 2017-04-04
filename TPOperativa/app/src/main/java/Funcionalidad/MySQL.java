@@ -68,6 +68,21 @@ public class MySQL{
         }
         return null;
     }
+    public void executeQuery(String query){
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.2.2:3306/" +
+                    this.dateBase, this.user, this.pass);
+            Statement st = conn.createStatement();
+
+            st.execute(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     public Connection getConnection(){
         return this.conn;
     }
