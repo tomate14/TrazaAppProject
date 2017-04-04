@@ -30,22 +30,16 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import Funcionalidad.AbsQuery;
 import Funcionalidad.MySQL;
+import Funcionalidad.Persona;
 
 import static android.Manifest.permission.READ_CONTACTS;
-import static android.widget.Toast.makeText;
 
 /**
  * A login screen that offers login via email/password.
@@ -330,13 +324,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
-        private Boolean resultado;
+        private Persona user;
 
 
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
-            resultado=false;
+
         }
 
         @Override
@@ -345,68 +339,49 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             try {
                 Log.d("CONECTANDO","INICIANDO CONEXION");
-                /*Class.forName("com.mysql.jdbc.Driver");
-                Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.2.2:3306/" +
-                        Sql.getDateBase(), Sql.getUser(), Sql.getPass());*/
 
                 String query = "SELECT * FROM USERS " +
-                               "WHERE email='"+this.mEmail+"'" +
-                               "  AND PASSWORD='"+this.mPassword+"'";
-                //Statement st = conn.createStatement();
-                //ResultSet resultSet = st.executeQuery(query);
+                        "WHERE email='"+this.mEmail+"'" +
+                        "  AND PASSWORD='"+this.mPassword+"'";
+
                 ResultSet resultSet = Sql.getResultset(query);
-                Log.d("CANTIDAD","La cantidad es:"+String.valueOf(resultSet.getMetaData().getColumnCount()) );
+
                 if(resultSet.next()){
-                        Log.d("EXISTE","Existe el usuario, piola");
+                    Log.d("EXISTE","Existe el usuario, piola");
                     // conn.close();
-
-                        //crear el usuario
-                        Intent mainActivity = new Intent(LoginActivity.this,MainActivity.class);
-                        startActivity(mainActivity);
-                        Thread.sleep(2000);
-                    }else{
-
-                       // finish();
-                    // conn.close();
+                    boolean admin = false;
+                    if(resultSet.getInt("role_id")==1){
+                        admin = true;
                     }
-                //}
-            } catch (InterruptedException e) {
-                return false;
+
+                    user = new Persona(resultSet.getInt("id"),resultSet.getString("username"),
+                            resultSet.getString("password"),resultSet.getString("name"),
+                            resultSet.getString("phone"),resultSet.getString("address"),
+                            resultSet.getInt("location_id"),admin,resultSet.getString("email"));
+
+
+
+                }else {
+                    return false;
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
+                return false;
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
             return true;
         }
-        private boolean validUser(ResultSet resultSet){
-            try {
-                String emailResult = resultSet.getString("email");
-                String passResult  = resultSet.getString("password");
-                if(emailResult.equals(this.mEmail) && passResult.equals(this.mPassword)  ){
-                    return true;
-                }
-            } catch (SQLException e) {
 
-                e.printStackTrace();
-            }
-            return false;
-
-        }
-        @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
             showProgress(false);
 
             if (success) {
+
+                Intent mainActivity = new Intent(LoginActivity.this,MainActivity.class);
+                mainActivity.putExtra("Persona",user);
+                startActivity(mainActivity);
+                //Thread.sleep(2000);
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

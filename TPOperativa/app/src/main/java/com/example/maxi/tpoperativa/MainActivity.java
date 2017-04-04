@@ -12,10 +12,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import Funcionalidad.Persona;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    private Persona user;
+    private TextView nameText;
+    private TextView emailText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +45,17 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View header = navigationView.getHeaderView(0);
+
+        //Tomamos la persona en la actividad
+        this.user = (Persona)getIntent().getExtras().getSerializable("Persona");
+
+        this.emailText = (TextView) header.findViewById(R.id.textMail);
+        this.emailText.setText(this.user.getEmail());
+
+        this.nameText = (TextView) header.findViewById(R.id.textNombre);
+        this.nameText.setText(this.user.getNombre());
+
     }
 
     @Override

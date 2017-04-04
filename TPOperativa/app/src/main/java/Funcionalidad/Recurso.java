@@ -126,7 +126,7 @@ public class Recurso implements Serializable {
     public void asignarRecurso(Persona p){
         v.add(String.valueOf(p.getId()));
         this.ubicacion.addElement(p.getDomicilio());
-        this.ciudad.addElement(p.getCiudad());
+        //this.ciudad.addElement(p.getCiudad());
     }
 
     public boolean tienePermisoConsulta(Persona p){ //la idea es q solo pueda consultar un persona que tuvo ese recurso alguna vez
