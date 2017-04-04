@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.sql.Array;
 import java.sql.ResultSet;
@@ -32,6 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView Direccion;
     private TextView Telefono;
     private TextView Password;
+    private TextView Website;
     private Spinner spinnerCities;
     private Button btnFinalizar;
     private int itemSpinner;
@@ -90,8 +92,17 @@ public class RegisterActivity extends AppCompatActivity {
         this.Password.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(String.valueOf(Password.getText()).equals("Email"))
+                if(String.valueOf(Password.getText()).equals("Password"))
                     Password.setText("");
+            }
+        });
+
+        this.Website = (TextView) findViewById(R.id.txt_Website);
+        this.Website.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(String.valueOf(Website.getText()).equals("Website"))
+                    Website.setText("");
             }
         });
 
@@ -118,7 +129,8 @@ public class RegisterActivity extends AppCompatActivity {
                     Nombre.getText(),
                     Email.getText(),
                     Direccion.getText(),
-                    Telefono.getText());
+                    Telefono.getText(),
+                    Website.getText());
                     add.execute();
                     //Llamar a insert a la base calculando la posicion donde esta el tipo
                 }
@@ -189,10 +201,11 @@ public class RegisterActivity extends AppCompatActivity {
         private String Email;
         private String Direccion;
         private String Telefono;
+        private String Website;
 
 
         public AddUserTask(CharSequence Usuario, String Password, CharSequence Nombre, CharSequence Email,
-                           CharSequence Direccion, CharSequence Telefono){
+                           CharSequence Direccion, CharSequence Telefono, CharSequence Website){
 
             this.Usuario = String.valueOf(Usuario);
             this.Password = Password;
@@ -200,6 +213,7 @@ public class RegisterActivity extends AppCompatActivity {
             this.Email = String.valueOf(Email);
             this.Direccion =String.valueOf(Direccion);
             this.Telefono = String.valueOf(Telefono);
+            this.Website = String.valueOf(Website);
         };
         @Override
         protected Boolean doInBackground(Void... params) {
@@ -209,17 +223,16 @@ public class RegisterActivity extends AppCompatActivity {
                 ResultSet resultSet = LoginActivity.Sql.getResultset(query);
 
                 if(resultSet.next()) {
+                    //Poner mensaje que el email ya existe
                     return false;
                 }
-                query = "INSERT INTO USERS(id,role_id,username,password,name,email,address,phone,location_id) " +
-                        "VALUES(`id`,1," +
-                        this.Usuario+","+
-                        this.Password+"," +
-                        this.Nombre+"," +
-                        this.Email+"," +
-                        this.Direccion+"," +
-                        this.Telefono+"," +
-                        String.valueOf(itemSpinner)+")";
+                query = "INSERT INTO USERS(id,role_id,username,password,name,email,"+
+                                      "address,phone,location_id,website)" +
+                        "          VALUES(`id`,1,'"+this.Usuario+"','"+this.Password+"'," +
+                                       "'"+this.Nombre+"','"+this.Email+"'," +
+                                       "'"+this.Direccion+"','"+this.Telefono+"'," +
+                                       "'"+String.valueOf(itemSpinner)+"','"+this.Website+"')";
+                Log.d("Consulta",query);
                 LoginActivity.Sql.executeQuery(query);
             } catch (SQLException e) {
                 e.printStackTrace();

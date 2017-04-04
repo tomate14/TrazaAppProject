@@ -75,7 +75,7 @@ public class MySQL{
                     this.dateBase, this.user, this.pass);
             Statement st = conn.createStatement();
 
-            st.execute(query);
+            st.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
