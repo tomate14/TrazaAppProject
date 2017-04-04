@@ -25,6 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import Funcionalidad.MySQL;
+import TareasAsincronas.AddUserTask;
+import TareasAsincronas.GetCitiesTask;
 
 public class RegisterActivity extends AppCompatActivity {
     private TextView Nombre;
@@ -126,14 +128,12 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(verifyDate()){
                     AddUserTask add = new AddUserTask(Usuario.getText(),Password.getText().toString(),
-                    Nombre.getText(),
-                    Email.getText(),
-                    Direccion.getText(),
-                    Telefono.getText(),
-                    Website.getText());
-                    add.execute();
+                                                      Nombre.getText(),Email.getText(),Direccion.getText(),Telefono.getText(),
+                                                      Website.getText(),itemSpinner);
+                                                      add.execute();
                     //Llamar a insert a la base calculando la posicion donde esta el tipo
                 }
+                finish();
             }
         });
 
@@ -143,8 +143,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void updateSpinner(){
         Log.d("CIUDAD:","HAGO CLICK");
-        GetCitiesTask citiesTask = new GetCitiesTask();
+        GetCitiesTask citiesTask = new GetCitiesTask(this.spinnerCities,RegisterActivity.this);
         citiesTask.execute();
+        spinnerCities = citiesTask.getSpinnerCities();
 
     }
     private boolean verifyDate() {
@@ -156,99 +157,5 @@ public class RegisterActivity extends AppCompatActivity {
         return false;
     }
 
-    //TAREA ASINCRONA PARA PODER LEVANTAR TODAS LAS CIUDADES
-    //DE LA BASE EN EL RESULTSET
-    //Tercer parametro lo que retorna doInBackgroud
-    public class GetCitiesTask extends AsyncTask<Void, Void, ResultSet>{
-        //private ResultSet ciudades;
 
-
-        @Override
-        //protected Boolean doInBackground(Void... params) {
-        protected ResultSet doInBackground(Void... params) {
-
-            ResultSet ciudades;
-            String query = "SELECT *" +
-                           "FROM locations";
-            ciudades = LoginActivity.Sql.getResultset(query);
-
-            return ciudades;
-        }
-
-        protected void onPostExecute(final ResultSet cities) {
-            try {
-                int index = 0;
-                while (cities.next()){
-                    listCities.add(cities.getString("name"));
-                    Log.d("Prueba",listCities.get(index).toString());
-                    index+=1;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            ArrayAdapter spinner_adapter;
-            spinner_adapter = new ArrayAdapter(RegisterActivity.this, android.R.layout.simple_spinner_item, listCities);
-            spinner_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinnerCities.setAdapter(spinner_adapter);
-        }
-
-    }
-
-    public class AddUserTask extends AsyncTask<Void, Void, Boolean>{
-        private String Usuario;
-        private String Password;
-        private String Nombre;
-        private String Email;
-        private String Direccion;
-        private String Telefono;
-        private String Website;
-
-
-        public AddUserTask(CharSequence Usuario, String Password, CharSequence Nombre, CharSequence Email,
-                           CharSequence Direccion, CharSequence Telefono, CharSequence Website){
-
-            this.Usuario = String.valueOf(Usuario);
-            this.Password = Password;
-            this.Nombre = String.valueOf(Nombre);
-            this.Email = String.valueOf(Email);
-            this.Direccion =String.valueOf(Direccion);
-            this.Telefono = String.valueOf(Telefono);
-            this.Website = String.valueOf(Website);
-        };
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                String query = "SELECT * FROM USERS " +
-                               "WHERE email='"+Email+"'";
-                ResultSet resultSet = LoginActivity.Sql.getResultset(query);
-
-                if(resultSet.next()) {
-                    //Poner mensaje que el email ya existe
-                    return false;
-                }
-                query = "INSERT INTO USERS(id,role_id,username,password,name,email,"+
-                                      "address,phone,location_id,website)" +
-                        "          VALUES(`id`,1,'"+this.Usuario+"','"+this.Password+"'," +
-                                       "'"+this.Nombre+"','"+this.Email+"'," +
-                                       "'"+this.Direccion+"','"+this.Telefono+"'," +
-                                       "'"+String.valueOf(itemSpinner)+"','"+this.Website+"')";
-                Log.d("Consulta",query);
-                LoginActivity.Sql.executeQuery(query);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            return true;
-        }
-        protected void onPostExecute(final Boolean sucess) {
-          if (sucess) {
-              //GENERAR LAS COORDENADAS
-
-              finish();
-            } else {
-
-            }
-
-        }
-    }
 }

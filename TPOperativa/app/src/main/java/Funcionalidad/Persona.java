@@ -1,12 +1,15 @@
 package Funcionalidad;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 
 public class Persona implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+
 
 	private int id; //identificador unico
 	
@@ -14,14 +17,12 @@ public class Persona implements Serializable {
 	private String user;
 	
 	private String nombre;
-	private String apellido;
 	private String telefono;
 	private String domicilio;
-	private String ciudad;
-	private String razon_social;
+	private int ciudad;
 	private boolean admin;
-	
-	private String foto; //puede ir o no
+    private String email;
+
 
 	public int getId() {
 		return id;
@@ -47,13 +48,6 @@ public class Persona implements Serializable {
 		this.nombre = nombre;
 	}
 
-	public String getApellido() {
-		return apellido;
-	}
-
-	public void setApellido(String apellido) {
-		this.apellido = apellido;
-	}
 
 	public String getTelefono() {
 		return telefono;
@@ -71,32 +65,16 @@ public class Persona implements Serializable {
 		this.domicilio = domicilio;
 	}
 
-	public String getRazon_social() {
-		return razon_social;
-	}
-
-	public void setRazon_social(String razon_social) {
-		this.razon_social = razon_social;
-	}
-
-	public String getFoto() {
-		return foto;
-	}
-
-	public void setFoto(String foto) {
-		this.foto = foto;
-	}
-	
 
 	public String getUser() {
 		return user;
 	}
 
-	public String getCiudad() {
+	public int getCiudad() {
 		return ciudad;
 	}
 
-	public void setCiudad(String ciudad) {
+	public void setCiudad(int ciudad) {
 		this.ciudad = ciudad;
 	}
 
@@ -109,23 +87,28 @@ public class Persona implements Serializable {
 		return admin;
 	}
 
-	public void setAdmin(boolean admin) {
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setAdmin(boolean admin) {
 		this.admin = admin;
 	}
 
-	public Persona(int id, String u, String pass, String nombre, String apellido, String telefono, String domicilio, String ciudad,
-			String razon_social, boolean admin) {
-		super();
+	public Persona(int id, String u, String pass, String nombre, String telefono, String domicilio, int ciudad, boolean admin,String email) {
 		this.id = id;
 		this.pass = pass;
 		this.nombre = nombre;
-		this.apellido = apellido;
 		this.telefono = telefono;
 		this.domicilio = domicilio;
-		this.razon_social = razon_social;
 		this.ciudad=ciudad;
 		this.user=u;
 		this.admin=admin;
+        this.email = email;
 	}
 
 
