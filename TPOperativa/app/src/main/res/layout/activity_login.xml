@@ -2,13 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@android:color/holo_red_light"
     android:baselineAligned="false"
     android:gravity="center_horizontal"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@android:color/holo_orange_light"
     tools:context="com.example.maxi.tpoperativa.LoginActivity">
 
     <!-- Login progress -->
@@ -18,13 +18,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:background="@color/colorAccent"
         android:visibility="gone" />
 
     <ScrollView
         android:id="@+id/login_form"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:background="@android:color/holo_orange_light">
+        android:background="@android:color/holo_red_light">
 
         <LinearLayout
             android:id="@+id/email_login_form"
@@ -81,10 +82,11 @@
                 android:id="@+id/btn_register"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.63"
-                android:background="@color/colorPrimary"
+                android:layout_weight="0.80"
+                android:background="@color/colorAccent"
                 android:text="Registrarse"
-                android:textColor="@android:color/background_light" />
+                android:textSize="20dp"
+                android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
             <Button
                 android:id="@+id/email_sign_in_button"
@@ -92,9 +94,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@color/colorPrimary"
+                android:background="@color/colorAccent"
                 android:text="@string/action_sign_in"
-                android:textColor="@android:color/background_light"/>
+                android:textSize="20dp"
+                android:textColor="@android:color/background_light" />
 
         </LinearLayout>
     </ScrollView>
