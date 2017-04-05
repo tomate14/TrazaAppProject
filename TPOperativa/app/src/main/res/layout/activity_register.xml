@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/holo_orange_light"
+    android:background="@android:color/holo_red_light"
     tools:context="com.example.maxi.tpoperativa.RegisterActivity">
 
 
@@ -122,12 +122,13 @@
                             android:id="@+id/btnFinalizar"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@color/colorPrimary"
+                            android:background="@color/colorAccent"
                             android:text="Finalizar"
-                            android:textColor="@android:color/background_light"/>
+                            android:textSize="20dp"
+                            android:textColor="@android:color/background_light" />
 
 
                 </LinearLayout>
 
-</ScrollView>
+        </ScrollView>
 </android.support.constraint.ConstraintLayout>
