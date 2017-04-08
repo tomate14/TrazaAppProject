@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity
     private Persona user;
     private TextView nameText;
     private TextView emailText;
+    private  NavigationView navigationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,12 +44,14 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         View header = navigationView.getHeaderView(0);
 
         //Tomamos la persona en la actividad
         this.user = (Persona)getIntent().getExtras().getSerializable("Persona");
+
+        hideItem();
 
         this.emailText = (TextView) header.findViewById(R.id.textMail);
         this.emailText.setText(this.user.getEmail());
@@ -58,6 +61,15 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private void hideItem()
+    {
+        if(!this.user.isAdmin()) {
+            navigationView = (NavigationView) findViewById(R.id.nav_view);
+            Menu nav_Menu = navigationView.getMenu();
+            nav_Menu.findItem(R.id.nav_trazarRecurso).setVisible(false);
+            nav_Menu.findItem(R.id.nav_nuevoRecurso).setVisible(false);
+        }
+    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -96,11 +108,11 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_nuevoRecurso) {
             // Handle the camera action
-        } else if (id == R.id.nav_galery) {
+        } else if (id == R.id.nav_trazarRecurso) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_verRecurso) {
 
         } else if (id == R.id.nav_manage) {
 

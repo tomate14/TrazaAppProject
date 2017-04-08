@@ -350,6 +350,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     Log.d("EXISTE","Existe el usuario, piola");
                     // conn.close();
                     boolean admin = false;
+                    Log.d("Es admin:",resultSet.getString("role_id"));
                     if(resultSet.getInt("role_id")==1){
                         admin = true;
                     }
