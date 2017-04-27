@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private Button mRegister;
 
     //public static final MySQL Sql = new MySQL("operativa","root","");
-    public static MySQL Sql = new MySQL("operativa","root","");
+    public static MySQL Sql = new MySQL("operativa","maxi","maxi");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

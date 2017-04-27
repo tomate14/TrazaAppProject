@@ -1,6 +1,8 @@
 package Funcionalidad;
 
 
+import android.util.Log;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -19,6 +21,7 @@ public class MySQL{
     private String user;
     private String pass;
     private Connection conn;
+    private Statement st;
 
 
 
@@ -52,13 +55,72 @@ public class MySQL{
         this.pass = pass;
     }
 
-    public ResultSet getResultset(String query){
+    public void CloseConecction(){
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public Statement crearConn(){
+
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.2.2:3306/" +
+            // "jdbc:mysql://IP:PUERTO/DB", "USER", "PASSWORD");
+            // Si estás utilizando el emulador de android y tenes el mysql en tu misma PC no utilizar 127.0.0.1 o localhost como IP, utilizar 10.0.2.2
+            //TODO: Modificar la direccion de la base de datos
+            //http://dbases.exa.unicen.edu.ar:8080/phpgadmin/
+            //unc_248361
+            //kobebryant
+            conn = DriverManager.getConnection("jdbc:mysql://192.168.0.6:3306/" +
                     this.dateBase, this.user, this.pass);
-            Statement st = conn.createStatement();
 
+            st = conn.createStatement();
+            st.executeUpdate("USE investigacionoperativa");
+
+            Log.v("MySql","Conexion con BD establecida.");
+        } catch (SQLException se) {
+            Log.v("MySql","oops! No se puede conectar. Error: " + se.toString());
+        } catch (ClassNotFoundException e) {
+            Log.v("MySql","oops! No se encuentra la clase. Error: " + e.getMessage());
+        }
+
+        return st;
+    }
+
+    public ResultSet getResultset(String s){
+        try {
+            crearConn();
+            return st.executeQuery(s);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Log.v("MySql","Error en executeQuery-MySql");
+        }
+        return null;
+    }
+
+    public void executeQuery(String s){
+        try {
+            crearConn();
+            int rs = st.executeUpdate(s);
+           // return rs;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            //return -1;
+        }
+    }
+    /*public ResultSet getResultset(String query){
+       Log.d("DENRO DEL RESULTSET","");
+        try {
+            Log.d("DENTRO DEL TRY","");
+            Class.forName("com.mysql.jdbc.Driver");
+             conn = DriverManager.getConnection("jdbc:mysql://10.0.2.2:3306/" +
+                    this.dateBase, this.user, this.pass);
+            Log.d("ANTES DEL STATEMENT","");
+            Statement st = conn.createStatement();
+            Log.d("Dentro del getresultset","");
             return st.executeQuery(query);
 
         } catch (SQLException e) {
@@ -75,7 +137,7 @@ public class MySQL{
                     this.dateBase, this.user, this.pass);
             Statement st = conn.createStatement();
 
-            st.executeUpdate(query);
+            int rs=st.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -86,6 +148,6 @@ public class MySQL{
     public Connection getConnection(){
         return this.conn;
     }
-
+*/
 
 }
