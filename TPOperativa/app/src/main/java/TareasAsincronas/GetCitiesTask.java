@@ -35,7 +35,6 @@ public class GetCitiesTask extends AsyncTask<Void, Void, ResultSet> {
         String query = "SELECT *" +
                 "FROM locations";
         ciudades = LoginActivity.Sql.getResultset(query);
-
         return ciudades;
     }
 
