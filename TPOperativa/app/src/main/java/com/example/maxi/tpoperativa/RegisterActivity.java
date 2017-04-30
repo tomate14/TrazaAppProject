@@ -1,11 +1,21 @@
 package com.example.maxi.tpoperativa;
 
-import android.os.AsyncTask;
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -17,18 +27,23 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import Funcionalidad.MySQL;
+import Funcionalidad.Persona;
+import Localizacion.Localizacion;
 import TareasAsincronas.AddUserTask;
-import TareasAsincronas.GetCitiesTask;
+import TareasAsincronas.SpinnerTask;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity{
     private TextView Nombre;
     private TextView Email;
     private TextView Usuario;
@@ -39,6 +54,8 @@ public class RegisterActivity extends AppCompatActivity {
     private Spinner spinnerCities;
     private Button btnFinalizar;
     private int itemSpinner;
+    private Localizacion Local;
+    private RegisterActivity actividad;
 
     private List listCities = new ArrayList<>();
 
@@ -47,6 +64,8 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setTitle("Crear Cuenta");
         setContentView(R.layout.activity_register);
+        this.actividad = this;
+
         this.itemSpinner = 0;
 
         this.Nombre = (TextView) findViewById(R.id.txt_nombre);
@@ -126,25 +145,51 @@ public class RegisterActivity extends AppCompatActivity {
         this.btnFinalizar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(verifyDate()){
-                    AddUserTask add = new AddUserTask(Usuario.getText(),Password.getText().toString(),
-                                                      Nombre.getText(),Email.getText(),Direccion.getText(),Telefono.getText(),
-                                                      Website.getText(),itemSpinner);
-                                                      add.execute();
-                    //Llamar a insert a la base calculando la posicion donde esta el tipo
-                }
-                finish();
+                    createUser();
             }
         });
 
 
 
     }
-
+    private void createUser(){
+        if(verifyDate()){
+            Persona newUser = new Persona();
+            locationStart(newUser);
+            AddUserTask add = new AddUserTask(Usuario.getText(),Password.getText().toString(),
+                    Nombre.getText(),Email.getText(),Direccion.getText(),Telefono.getText(),
+                    Website.getText(),itemSpinner,newUser.getLatitude(),newUser.getLongitude());
+            add.execute();
+            try {
+                if(add.get()){
+                    Log.d("CORRECTO","AGREGADO");
+                    finish();
+                }
+                else{
+                    Toast text = Toast.makeText(actividad,"Hay datos registrados en la base",Toast.LENGTH_SHORT);
+                    text.setGravity(Gravity.CENTER, 0, 0);
+                    text.show();
+                    Log.d("FALSO","NO AGREGADO");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }else {
+            Toast text = Toast.makeText(actividad,"Faltan datos",Toast.LENGTH_SHORT);
+            text.setGravity(Gravity.CENTER, 0, 0);
+            text.show();
+        }
+    }
     private void updateSpinner(){
         Log.d("CIUDAD:","HAGO CLICK");
-        GetCitiesTask citiesTask = new GetCitiesTask(this.spinnerCities,RegisterActivity.this);
-        citiesTask.execute();
+        SpinnerTask citiesTask = new SpinnerTask(this.spinnerCities,RegisterActivity.this);
+
+        String query = "SELECT *" +
+                "FROM locations";
+
+        citiesTask.execute(query);
         spinnerCities = citiesTask.getSpinnerCities();
 
     }
@@ -155,6 +200,47 @@ public class RegisterActivity extends AppCompatActivity {
                 && (itemSpinner != 0) )
             return true;
         return false;
+    }
+
+    private void locationStart(Persona user){
+
+        Log.d("LOCALIZATIONSTART","EMPEZO");
+        LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Location location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        this.Local = new Localizacion(location);
+        this.Local.setMainActivity(this);
+        final boolean gpsEnabled = mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, 1000);
+            Log.d("SALGO","TERMINO");
+
+            return;
+        }
+        mlocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, (LocationListener) Local);
+        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) Local);
+        seeLocation(this.Local.getLocation(),user);
+        Log.d("","Localizacion agregada");
+
+    }
+
+
+
+    public void seeLocation(Location loc,Persona user) {
+        //Obtener la direccion de la calle a partir de la latitud y la longitud
+        try {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<Address> list = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+            if (!list.isEmpty()) {
+                Address DirCalle = list.get(0);
+                user.setDireccion(DirCalle.getAddressLine(0));
+                Log.d("","Mi direccion es: \n"
+                        + DirCalle.getAddressLine(0));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

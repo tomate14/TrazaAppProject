@@ -1,5 +1,6 @@
 package com.example.maxi.tpoperativa;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -15,7 +17,6 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -38,6 +39,7 @@ import java.util.List;
 
 import Funcionalidad.MySQL;
 import Funcionalidad.Persona;
+import Localizacion.Localizacion;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -70,13 +72,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private Button mEmailSignInButton;
     private Button mRegister;
 
+
+
     //public static final MySQL Sql = new MySQL("operativa","root","");
-    public static MySQL Sql = new MySQL("operativa","maxi","maxi");
+    public static MySQL Sql = new MySQL("operativa", "maxi", "maxi");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Login / Registrar");
+
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -94,7 +99,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
         mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mRegister = (Button)findViewById(R.id.btn_register);
+        mRegister = (Button) findViewById(R.id.btn_register);
 
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -106,17 +111,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onClick(View view) {
 
-                Intent mainActivity = new Intent(LoginActivity.this,RegisterActivity.class);
+                Intent mainActivity = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(mainActivity);
             }
         });
 
-
-
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
+        Log.d("CREANDO PERMISO", "ASDQWE");
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, 1000);
+            Log.d("MAXIIIIIIIIIIII", "REQUESTPERMISO");
+        }
+
+
     }
+
 
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
@@ -159,6 +170,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 populateAutoComplete();
             }
         }
+
+        /*Log.d("MAXIIIIIIIIIIII", "ANTES DEL LOCATIONSTART");
+        if (requestCode == 1000) {
+            Log.d("MAXIIIIIIIIIIII", "FUERA");
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("MAXIIIIIIIIIIII", "DENTRO");
+                //locationStart();
+                return;
+            }
+        }*/
     }
 
 
@@ -320,6 +341,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
+
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mEmail;
@@ -358,7 +380,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     user = new Persona(resultSet.getInt("id"),resultSet.getString("username"),
                             resultSet.getString("password"),resultSet.getString("name"),
                             resultSet.getString("phone"),resultSet.getString("address"),
-                            resultSet.getInt("location_id"),admin,resultSet.getString("email"));
+                            resultSet.getInt("location_id"),admin,resultSet.getString("email"),
+                            resultSet.getDouble("latitude"),resultSet.getDouble("longitude"));
+                    user.setDireccion(resultSet.getString("address"));
 
 
 
@@ -378,7 +402,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
-
+                //Iria en el register mas que nada
+                //locationStart(user);
                 Intent mainActivity = new Intent(LoginActivity.this,MainActivity.class);
                 mainActivity.putExtra("Persona",user);
                 startActivity(mainActivity);
@@ -401,7 +426,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+      /*GEO LOCALIZACION */
+
 
 
 }
+
+    /*FIN GEOLOCALIZACION */
+
+
+
 
