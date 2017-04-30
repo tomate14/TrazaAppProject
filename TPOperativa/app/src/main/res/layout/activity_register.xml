@@ -117,15 +117,18 @@
                             android:ems="10"
                             android:inputType="textPersonName"
                             android:text="Website" />
-
                         <Button
                             android:id="@+id/btnFinalizar"
+                            style="?android:textAppearanceSmall"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
                             android:background="@color/colorAccent"
                             android:text="Finalizar"
                             android:textSize="20dp"
-                            android:textColor="@android:color/background_light" />
+                            android:textColor="@android:color/background_light"
+                            />
+
 
 
                 </LinearLayout>
