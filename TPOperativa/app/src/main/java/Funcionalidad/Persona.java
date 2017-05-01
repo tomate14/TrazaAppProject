@@ -138,6 +138,11 @@ public class Persona implements Serializable {
 		this.longitude = lon;
 	}
 
+	public String toString(){
+		return "User = "+this.id+", "+this.pass+", "+this.nombre+", "+this.telefono+", "+this.domicilio+", "+this.ciudad+", "+
+				this.user+", "+this.admin+", "+this.email+", "+this.latitude+", "+this.longitude;
+	};
+
 
 
 

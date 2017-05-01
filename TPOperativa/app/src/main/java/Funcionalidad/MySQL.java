@@ -74,11 +74,11 @@ public class MySQL{
             //http://dbases.exa.unicen.edu.ar:8080/phpgadmin/
             //unc_248361
             //kobebryant
-            conn = DriverManager.getConnection("jdbc:mysql://192.168.0.6:3306/" +
+            conn = DriverManager.getConnection("jdbc:mysql://192.168.43.195:3306/" +
                     this.dateBase, this.user, this.pass);
 
             st = conn.createStatement();
-            st.executeUpdate("USE investigacionoperativa");
+            st.executeUpdate("USE operativa");
 
             Log.v("MySql","Conexion con BD establecida.");
         } catch (SQLException se) {
@@ -101,53 +101,18 @@ public class MySQL{
         return null;
     }
 
-    public void executeQuery(String s){
+    public int executeQuery(String s){
         try {
             crearConn();
             int rs = st.executeUpdate(s);
-           // return rs;
+            Log.d("Retorno","Valor= "+rs);
+            return rs;
         } catch (SQLException e) {
+            Log.d("Retorno","Valor= NULO");
             e.printStackTrace();
-            //return -1;
-        }
-    }
-    /*public ResultSet getResultset(String query){
-       Log.d("DENRO DEL RESULTSET","");
-        try {
-            Log.d("DENTRO DEL TRY","");
-            Class.forName("com.mysql.jdbc.Driver");
-             conn = DriverManager.getConnection("jdbc:mysql://10.0.2.2:3306/" +
-                    this.dateBase, this.user, this.pass);
-            Log.d("ANTES DEL STATEMENT","");
-            Statement st = conn.createStatement();
-            Log.d("Dentro del getresultset","");
-            return st.executeQuery(query);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    public void executeQuery(String query){
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            Connection conn = DriverManager.getConnection("jdbc:mysql://10.0.2.2:3306/" +
-                    this.dateBase, this.user, this.pass);
-            Statement st = conn.createStatement();
-
-            int rs=st.executeUpdate(query);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            return -1;
         }
     }
 
-    public Connection getConnection(){
-        return this.conn;
-    }
-*/
 
 }

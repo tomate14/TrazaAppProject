@@ -4,8 +4,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.maxi.tpoperativa.LoginActivity;
 import com.example.maxi.tpoperativa.RegisterActivity;
@@ -24,6 +26,7 @@ public class SpinnerTask extends AsyncTask<String, Void, ResultSet> {
     private List listCities = new ArrayList<>();
     private Spinner spinnerCities;
     private AppCompatActivity register;
+    private  Toast text;
 
     public SpinnerTask(Spinner spinner, AppCompatActivity activity){
         this.register = activity;
@@ -33,8 +36,17 @@ public class SpinnerTask extends AsyncTask<String, Void, ResultSet> {
     @Override
     protected ResultSet doInBackground(String... params) {
         Log.d("PARAMETRO",params[0]);
+
         this.ciudades = LoginActivity.Sql.getResultset(params[0]);
         return ciudades;
+    }
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        Log.d("cargando","Cargando ciudades");
+        this.text = Toast.makeText(register,"Cargando ciudades",Toast.LENGTH_SHORT);
+        this.text.setGravity(Gravity.CENTER, 0, 0);
+        this.text.show();
     }
 
     protected void onPostExecute(final ResultSet cities) {
