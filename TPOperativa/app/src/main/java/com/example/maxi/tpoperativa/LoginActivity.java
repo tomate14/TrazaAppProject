@@ -39,7 +39,6 @@ import java.util.List;
 
 import Funcionalidad.MySQL;
 import Funcionalidad.Persona;
-import Localizacion.Localizacion;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
