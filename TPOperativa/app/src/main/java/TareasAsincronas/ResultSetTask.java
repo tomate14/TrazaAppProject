@@ -1,7 +1,6 @@
 package TareasAsincronas;
 
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,6 +23,10 @@ public class ResultSetTask  extends AsyncTask<String, Void, ResultSet> {
         this.activity = activity;
         this.mensaje = mensaje;
     }
+    public ResultSetTask(ResourcesMaps activity){
+        this.activity = activity;
+        this.mensaje = null;
+    }
 
     @Override
     protected ResultSet doInBackground(String... params) {
@@ -35,13 +38,13 @@ public class ResultSetTask  extends AsyncTask<String, Void, ResultSet> {
     protected void onPostExecute(ResultSet resultSet) {
         super.onPostExecute(resultSet);
         try {
-            if(!resultSet.next()){
-                Toast toast = Toast.makeText(this.activity,
-                        this.mensaje, Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            if(this.mensaje != null)
+                if(resultSet.next()){
+                    Toast.makeText(activity,"Cargando puntos",Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(activity,this.mensaje,Toast.LENGTH_SHORT).show();
+                }
+        } catch (SQLException e) {e.printStackTrace();}
+
     }
 }

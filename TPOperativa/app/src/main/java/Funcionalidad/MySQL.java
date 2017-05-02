@@ -74,7 +74,7 @@ public class MySQL{
             //http://dbases.exa.unicen.edu.ar:8080/phpgadmin/
             //unc_248361
             //kobebryant
-            conn = DriverManager.getConnection("jdbc:mysql://192.168.43.195:3306/" +
+            conn = DriverManager.getConnection("jdbc:mysql://192.168.0.6:3306/" +
                     this.dateBase, this.user, this.pass);
 
             st = conn.createStatement();
