@@ -2,13 +2,10 @@ package com.example.maxi.tpoperativa;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.DrawableRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,8 +13,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +22,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -34,6 +29,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
 import Funcionalidad.Persona;
@@ -41,43 +40,86 @@ import Funcionalidad.PointInfo;
 import TareasAsincronas.ResultSetTask;
 import TareasAsincronas.SpinnerTask;
 
-public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallback {
+public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallback{
 
     private GoogleMap mMap;
     private Persona user;
     private Spinner spinnerCities;
+    private Spinner spinnerTrack;
     private String textSpinner;
+    private String track;
+    private Vector<PointInfo> pointInfo = new Vector<PointInfo>();
+    private ResourcesMaps resources;
+    private boolean selected;
+
+    /*private String movimientoNro;
+    private String address_destino;
+    private String origen;
+    private String destino;
+    private String date;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.resources = this;
+        this.selected = false;
         setContentView(R.layout.activity_prueba_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         this.user = (Persona)getIntent().getExtras().getSerializable("Persona");
 
-        this.spinnerCities = (Spinner) findViewById(R.id.spinner);
+        this.spinnerCities = (Spinner) findViewById(R.id.spinner_resource);
+        this.spinnerTrack  = (Spinner) findViewById(R.id.spinner_track);
         updateSpinner();
         this.textSpinner = "";
         this.spinnerCities.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             public void onItemSelected(AdapterView<?> parentView,View selectedItemView, int position, long id) {
+                selected = false;
+
                 String text = (String) spinnerCities.getSelectedItem();
-                Log.d("SPINNER","SELECCIONO ITEM ="+textSpinner+", TEXT="+text);
-                if(textSpinner != text){
-                    textSpinner = text;
-                    mMap.clear();
-                    onMapReady(mMap);
-                }
+                String query = " SELECT track_code "+
+                               " FROM RESOURCES AS R, RESOURCES_TRACK AS RT "+
+                               " WHERE R.ID = RT.ID_RESOURCE" +
+                               "   AND R.name = '"+text+"'" +
+                               " ORDER BY RT.TRACK_CODE ";
+                ResultSetTask task = new ResultSetTask(resources);
+                task.execute(query);
+                try {
+                    ResultSet result = task.get();
+                    updateSpinnerTrack(result);
+
+                } catch (InterruptedException e) {e.printStackTrace();}
+                  catch (ExecutionException e) {e.printStackTrace();}
+
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 textSpinner = "";
             };
         });
+        this.spinnerTrack.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            public void onItemSelected(AdapterView<?> parentView,View selectedItemView, int position, long id) {
+                if(selected){
+                    String text = (String) spinnerTrack.getSelectedItem();
+                    track = text;
+                    mMap.clear();
+                    onMapReady(mMap);
+                }
+
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                track = "";
+            };
+        });
+
+
     }
+
+
 
     private void updateSpinner(){
         Log.d("CIUDAD:","HAGO CLICK");
@@ -90,36 +132,48 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
         spinnerCities = citiesTask.getSpinnerCities();
 
     }
+    private void updateSpinnerTrack(ResultSet result){
+
+        List listCities = new ArrayList<>();
+        try {
+            int index = 0;
+            while (result.next()){
+                listCities.add(result.getString("track_code"));
+                Log.d("updateSpinnerTrack= ",listCities.get(index).toString());
+                index+=1;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        ArrayAdapter spinner_adapter;
+        spinner_adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, listCities);
+        spinner_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        this.spinnerTrack.setAdapter(spinner_adapter);
+        this.selected = true;
+
+    }
     public void onMapReady(GoogleMap googleMap) {
-        Log.d("MAPA:","ENTRO AL MAPA");
-        mMap = googleMap;
+            Log.d("MapReady", "Ingresando");
+            mMap = googleMap;
+            String query = "SELECT RR.ID, RR.ID_RESOURCE, RR.ID_ORIGEN, O.NAME as ORI_NAME, RR.ID_DESTINO, D.NAME AS DES_NAME, D.ROLE_ID AS DES_ROLE,\n" +
+                    "       D.ADDRESS AS DES_ADDRESS, RR.LATITUDE, RR.LONGITUDE, DATE_FORMAT(RR.DATE,'%d/%m/%Y') AS date\n" +
+                    " FROM   RESOURCE_ROUTE AS RR, USERS AS O, USERS AS D, RESOURCES AS R \n" +
+                    " WHERE R.ID = RR.ID_RESOURCE " +
+                    "  AND  RR.TRACK_CODE ='" + track + "'\n" +
+                    "  AND  RR.ID_DESTINO = D.ID\n" +
+                    "  AND  RR.ID_ORIGEN  = O.ID ";
 
-        Toast text = Toast.makeText(this,"Cargando mapa",Toast.LENGTH_SHORT);
-        text.setGravity(Gravity.CENTER, 0, 0);
-        text.show();
-        Log.d("STRINGS:","CARGO MENSAJE Y QUERY");
-        String mensaje = "No hay datos para mostrar";
+            String mensaje = "No hay datos para mostrar";
 
-        String query = "SELECT RR.ID, RR.ID_RESOURCE, RR.ID_ORIGEN, O.NAME as ORI_NAME, RR.ID_DESTINO, D.NAME AS DES_NAME, D.ROLE_ID AS DES_ROLE,\n" +
-                "       D.ADDRESS AS DES_ADDRESS, RR.LATITUDE, RR.LONGITUDE, DATE_FORMAT(RR.DATE,'%d/%m/%Y') AS date\n" +
-                " FROM   RESOURCE_ROUTE AS RR, USERS AS O, USERS AS D, RESOURCES AS R\n" +
-                " WHERE R.ID = RR.ID_RESOURCE " +
-                "  AND  R.NAME ='"+textSpinner+"'\n" +
-                "  AND  RR.ID_DESTINO = D.ID\n" +
-                "  AND  RR.ID_ORIGEN  = O.ID ";
-
-        if(textSpinner != ""){
-            Log.d("CARGAR MOVIMIENTOS RECURSO",query);
-
-            ResultSetTask task = new ResultSetTask(this,mensaje);
-            task.execute(query);
+            ResultSetTask task = new ResultSetTask(this, mensaje);
             int count = 1;
             try {
+                task.execute(query);
                 ResultSet result = task.get();
-
-                while(result.next()){
+                while (result.next()) {
                     PointInfo point = generarPoint(result);
-                    addPointIntoMap(point,count);
+                    pointInfo.add(point);
+                    addPointIntoMap(point, count);
                     count++;
                 }
             } catch (InterruptedException e) {
@@ -129,9 +183,6 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-
-        }
-
     }
 
     private PointInfo generarPoint(ResultSet result) throws SQLException {
@@ -150,33 +201,58 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
 
     }
 
+    private void addMensaje() {
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            // Defines the contents of the InfoWindow
+            public View getInfoContents(Marker marker) {
+                String name = marker.getTitle();
+                boolean exito = false;
+                PointInfo point = pointInfo.elementAt(0);
+                int count = 0;
+                while (!exito){
+                    if(String.valueOf(point.getId()).equals(name)){
+                        exito = true;
+                    }else{
+                        count++;
+                        point = pointInfo.elementAt(count);
+                    }
+                }
+                View v = getLayoutInflater().inflate(R.layout.info_windows_marker, null);
+                TextView movimiento_nro = (TextView) v.findViewById(R.id.movimiento_nro);
+                TextView direccion_Destino = (TextView) v.findViewById(R.id.direccion_destino);
+                TextView origen = (TextView) v.findViewById(R.id.origen);
+                TextView destino = (TextView) v.findViewById(R.id.destino);
+                TextView fecha = (TextView) v.findViewById(R.id.fecha);
+                // Setting the latitude
+                movimiento_nro.setText(   "Movimiento Nro: "+ point.getId());
+                direccion_Destino.setText("Dir Destino:    "+ point.getDestino_address());
+                origen.setText(           "Origen:           "+ point.getOrigen_name());
+                destino.setText(          "Destino:         "+ point.getDestino_name());
+                fecha.setText(            "Fecha:            "+ point.getDate());
+                return v;
+            }
+        });
+
+    }
+
     //Crea y Agrega punto al mapa
     private void addPointIntoMap(PointInfo pointer, int count){
 
         LatLng point = new LatLng(pointer.getLatitude(), pointer.getLongitude());
-
-        String textPrincipal  = "Movimiento Nro: "+pointer.getId();
-        String textSnipper = "Direccion Destino: "+pointer.getDestino_address()+"\n"+
-                             "Origen:         "+pointer.getOrigen_name()+"\n"+
-                             "Destino:        "+pointer.getDestino_name()+"\n"+
-                             "Fecha:          "+pointer.getDate();
-
         String textNumber = String.valueOf(count);
-
         int numberIcon = this.getLayoutNumber(pointer.getDestino_role());
-
-        //recorro la lista que retorne el resultset del recurso y miro, si ese id es admin
-
-        MarkerOptions tag = new MarkerOptions().position(point).title(textPrincipal)
-                .snippet(textSnipper).icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(textNumber,numberIcon)));
+        MarkerOptions tag = new MarkerOptions().position(point).title(String.valueOf(pointer.getId()))
+                .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(textNumber,numberIcon)));
+        addMensaje();
         mMap.addMarker(tag);
-        addWindowsInfo();
         mMap.moveCamera(CameraUpdateFactory.newLatLng(point));
     }
 
-    private void addWindowsInfo(){
-
-    }
     //Selecciono el color del marcador a utilizar
     private int getLayoutNumber(int destino_role){
         if(destino_role != 1){
@@ -205,5 +281,6 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
         customMarkerView.draw(canvas);
         return returnedBitmap;
     }
+
 }
 

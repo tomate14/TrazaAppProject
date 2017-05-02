@@ -22,7 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import Funcionalidad.Persona;
 import TareasAsincronas.SpinnerTask;
@@ -110,7 +109,7 @@ public class RegisterActivity extends AppCompatActivity{
             }
         });
 
-        this.spinnerCities = (Spinner) findViewById(R.id.spinner);
+        this.spinnerCities = (Spinner) findViewById(R.id.spinner_resource);
         updateSpinner();
 
         this.spinnerCities.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
