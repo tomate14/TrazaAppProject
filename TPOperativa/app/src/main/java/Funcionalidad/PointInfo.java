@@ -5,14 +5,14 @@ package Funcionalidad;
  */
 
 public class PointInfo {
-    private int id;
-    private String id_resource;
-    private String id_origen;
+    private int id; //Numero de movimiento
+    private String id_resource; //Id del recurso
+    private String id_origen; //Id del usuario de origen
     private String origen_name;
-    private String id_destino;
-    private String destino_name;
-    private int destino_role;
-    private String destino_address;
+    private String id_destino;//Id persona destno
+    private String destino_name;//Nombre persona destino
+    private int destino_role;//Rol del destino, usuario comun o admin
+    private String destino_address;//Direccion del destino
     private double latitude;
     private double longitude;
     private String date;

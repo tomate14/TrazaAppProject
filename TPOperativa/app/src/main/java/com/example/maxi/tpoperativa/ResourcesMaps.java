@@ -31,10 +31,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
+import Funcionalidad.Elemento;
 import Funcionalidad.Persona;
 import Funcionalidad.PointInfo;
 import TareasAsincronas.ResultSetTask;
@@ -43,7 +43,8 @@ import TareasAsincronas.SpinnerTask;
 public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallback{
 
     private GoogleMap mMap;
-    private Persona user;
+    private Elemento element;
+    //Agregar actualizar en la tabla que persona tiene ese recurso
     private Spinner spinnerCities;
     private Spinner spinnerTrack;
     private String textSpinner;
@@ -51,12 +52,6 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
     private Vector<PointInfo> pointInfo = new Vector<PointInfo>();
     private ResourcesMaps resources;
     private boolean selected;
-
-    /*private String movimientoNro;
-    private String address_destino;
-    private String origen;
-    private String destino;
-    private String date;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +62,17 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        this.user = (Persona)getIntent().getExtras().getSerializable("Persona");
+        this.element = (Elemento)getIntent().getExtras().getSerializable("Persona");
 
         this.spinnerCities = (Spinner) findViewById(R.id.spinner_resource);
         this.spinnerTrack  = (Spinner) findViewById(R.id.spinner_track);
-        updateSpinner();
+        //Genero la query para cargar el spinner
+
+        String query = "SELECT * " +
+                "FROM resources " +
+                "ORDER BY name";
+        updateSpinner(this.spinnerCities,query,"name");
+
         this.textSpinner = "";
         this.spinnerCities.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
@@ -80,18 +81,12 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
 
                 String text = (String) spinnerCities.getSelectedItem();
                 String query = " SELECT track_code "+
-                               " FROM RESOURCES AS R, RESOURCES_TRACK AS RT "+
-                               " WHERE R.ID = RT.ID_RESOURCE" +
-                               "   AND R.name = '"+text+"'" +
-                               " ORDER BY RT.TRACK_CODE ";
-                ResultSetTask task = new ResultSetTask(resources);
-                task.execute(query);
-                try {
-                    ResultSet result = task.get();
-                    updateSpinnerTrack(result);
-
-                } catch (InterruptedException e) {e.printStackTrace();}
-                  catch (ExecutionException e) {e.printStackTrace();}
+                        " FROM RESOURCES AS R, RESOURCES_TRACK AS RT "+
+                        " WHERE R.ID = RT.ID_RESOURCE" +
+                        "   AND R.name = '"+text+"'" +
+                        " ORDER BY RT.TRACK_CODE ";
+                updateSpinner(spinnerTrack,query,"track_code");
+                selected = true;
 
             }
             @Override
@@ -120,71 +115,51 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
     }
 
 
+    //Spinner de los nombres de recursos
+    private void updateSpinner(Spinner spinner, String query,String column){
 
-    private void updateSpinner(){
-        Log.d("CIUDAD:","HAGO CLICK");
-        SpinnerTask citiesTask = new SpinnerTask(this.spinnerCities,ResourcesMaps.this);
-        String query = "SELECT * " +
-                       "FROM resources " +
-                       "ORDER BY name";
+
+        SpinnerTask citiesTask = new SpinnerTask(spinner,ResourcesMaps.this,column);
         citiesTask.execute(query);
-
-        spinnerCities = citiesTask.getSpinnerCities();
+        spinner = citiesTask.getSpinnerCities();
 
     }
-    private void updateSpinnerTrack(ResultSet result){
 
-        List listCities = new ArrayList<>();
+    //Si el mapa esta listo agrego los puntos
+    public void onMapReady(GoogleMap googleMap) {
+        Log.d("MapReady", "Ingresando");
+        mMap = googleMap;
+        String query = "SELECT RR.ID, RR.ID_RESOURCE, RR.ID_ORIGEN, O.NAME as ORI_NAME, RR.ID_DESTINO, D.NAME AS DES_NAME, D.ROLE_ID AS DES_ROLE,\n" +
+                "       D.ADDRESS AS DES_ADDRESS, RR.LATITUDE, RR.LONGITUDE, DATE_FORMAT(RR.DATE,'%d/%m/%Y') AS date\n" +
+                " FROM   RESOURCE_ROUTE AS RR, USERS AS O, USERS AS D, RESOURCES AS R \n" +
+                " WHERE R.ID = RR.ID_RESOURCE " +
+                "  AND  RR.TRACK_CODE ='" + track + "'\n" +
+                "  AND  RR.ID_DESTINO = D.ID\n" +
+                "  AND  RR.ID_ORIGEN  = O.ID ";
+
+        String mensaje = "No hay datos para mostrar";
+
+        ResultSetTask task = new ResultSetTask(this, mensaje);
+        int count = 1;
         try {
-            int index = 0;
-            while (result.next()){
-                listCities.add(result.getString("track_code"));
-                Log.d("updateSpinnerTrack= ",listCities.get(index).toString());
-                index+=1;
+            task.execute(query);
+            ResultSet result = task.get();
+            while (result.next()) {
+                PointInfo point = generarPoint(result);
+                changeLocationIdem(point);
+                pointInfo.add(point);
+                addPointIntoMap(point, count);
+                count++;
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        ArrayAdapter spinner_adapter;
-        spinner_adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, listCities);
-        spinner_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.spinnerTrack.setAdapter(spinner_adapter);
-        this.selected = true;
-
     }
-    public void onMapReady(GoogleMap googleMap) {
-            Log.d("MapReady", "Ingresando");
-            mMap = googleMap;
-            String query = "SELECT RR.ID, RR.ID_RESOURCE, RR.ID_ORIGEN, O.NAME as ORI_NAME, RR.ID_DESTINO, D.NAME AS DES_NAME, D.ROLE_ID AS DES_ROLE,\n" +
-                    "       D.ADDRESS AS DES_ADDRESS, RR.LATITUDE, RR.LONGITUDE, DATE_FORMAT(RR.DATE,'%d/%m/%Y') AS date\n" +
-                    " FROM   RESOURCE_ROUTE AS RR, USERS AS O, USERS AS D, RESOURCES AS R \n" +
-                    " WHERE R.ID = RR.ID_RESOURCE " +
-                    "  AND  RR.TRACK_CODE ='" + track + "'\n" +
-                    "  AND  RR.ID_DESTINO = D.ID\n" +
-                    "  AND  RR.ID_ORIGEN  = O.ID ";
-
-            String mensaje = "No hay datos para mostrar";
-
-            ResultSetTask task = new ResultSetTask(this, mensaje);
-            int count = 1;
-            try {
-                task.execute(query);
-                ResultSet result = task.get();
-                while (result.next()) {
-                    PointInfo point = generarPoint(result);
-                    pointInfo.add(point);
-                    addPointIntoMap(point, count);
-                    count++;
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-    }
-
+    //Genero el punto con la informacion necesaria
     private PointInfo generarPoint(ResultSet result) throws SQLException {
         int id              = result.getInt("id");
         String id_resource  = result.getString("id_resource");
@@ -201,6 +176,7 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
 
     }
 
+    //Cambio la ventana del punto con la info
     private void addMensaje() {
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             public View getInfoWindow(Marker arg0) {
@@ -228,7 +204,6 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
                 TextView origen = (TextView) v.findViewById(R.id.origen);
                 TextView destino = (TextView) v.findViewById(R.id.destino);
                 TextView fecha = (TextView) v.findViewById(R.id.fecha);
-                // Setting the latitude
                 movimiento_nro.setText(   "Movimiento Nro: "+ point.getId());
                 direccion_Destino.setText("Dir Destino:    "+ point.getDestino_address());
                 origen.setText(           "Origen:           "+ point.getOrigen_name());
@@ -244,6 +219,7 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
     private void addPointIntoMap(PointInfo pointer, int count){
 
         LatLng point = new LatLng(pointer.getLatitude(), pointer.getLongitude());
+        Log.d("PUNTO","AGREGAR PUNTO= "+point.longitude + " , "+point.latitude);
         String textNumber = String.valueOf(count);
         int numberIcon = this.getLayoutNumber(pointer.getDestino_role());
         MarkerOptions tag = new MarkerOptions().position(point).title(String.valueOf(pointer.getId()))
@@ -251,6 +227,23 @@ public class ResourcesMaps extends AppCompatActivity implements OnMapReadyCallba
         addMensaje();
         mMap.addMarker(tag);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(point));
+    }
+
+    //Si hay dos puntos que compiten por la misma posicion, muevo la latitud para
+    //que no se solapen
+    private void changeLocationIdem(PointInfo point) {
+        double latitude_add = 00.00001;
+        double aux=0;
+        for(PointInfo p: pointInfo){
+            if((p.getLatitude()==point.getLatitude())&& (p.getLongitude()==point.getLongitude())){
+                if(point.getLatitude() > 0) {
+                    point.setLatitude(point.getLatitude()+latitude_add);
+                }else{
+                    point.setLatitude(point.getLatitude()- latitude_add);
+                }
+            }
+
+        }
     }
 
     //Selecciono el color del marcador a utilizar

@@ -1,6 +1,7 @@
 package TareasAsincronas;
 
 import android.os.AsyncTask;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -16,14 +17,14 @@ import java.sql.SQLException;
 
 public class ResultSetTask  extends AsyncTask<String, Void, ResultSet> {
 
-    private ResourcesMaps activity;
+    private AppCompatActivity activity;
     private String mensaje;
 
-    public ResultSetTask(ResourcesMaps activity, String mensaje){
+    public ResultSetTask(AppCompatActivity activity, String mensaje){
         this.activity = activity;
         this.mensaje = mensaje;
     }
-    public ResultSetTask(ResourcesMaps activity){
+    public ResultSetTask(AppCompatActivity activity){
         this.activity = activity;
         this.mensaje = null;
     }
@@ -37,14 +38,15 @@ public class ResultSetTask  extends AsyncTask<String, Void, ResultSet> {
     @Override
     protected void onPostExecute(ResultSet resultSet) {
         super.onPostExecute(resultSet);
-        try {
+        /*try {
             if(this.mensaje != null)
                 if(resultSet.next()){
-                    Toast.makeText(activity,"Cargando puntos",Toast.LENGTH_SHORT).show();
+
+                    //Toast.makeText(activity,"Cargando puntos",Toast.LENGTH_SHORT).show();
                 }else{
-                    Toast.makeText(activity,this.mensaje,Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(activity,this.mensaje,Toast.LENGTH_SHORT).show();
                 }
         } catch (SQLException e) {e.printStackTrace();}
-
+        */
     }
 }

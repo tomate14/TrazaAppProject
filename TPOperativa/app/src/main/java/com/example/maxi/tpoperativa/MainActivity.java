@@ -47,16 +47,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -95,12 +85,15 @@ public class MainActivity extends AppCompatActivity
 
     private void hideItem()
     {
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        Menu nav_Menu = navigationView.getMenu();
+
         if(!this.user.isAdmin()) {
-            navigationView = (NavigationView) findViewById(R.id.nav_view);
-            Menu nav_Menu = navigationView.getMenu();
             nav_Menu.findItem(R.id.nav_trazarRecurso).setVisible(false);
             nav_Menu.findItem(R.id.nav_nuevoRecurso).setVisible(false);
         }
+        nav_Menu.findItem(R.id.nav_share).setVisible(false);
+        nav_Menu.findItem(R.id.nav_nuevoRecurso).setVisible(false);
     }
     @Override
     public void onBackPressed() {
@@ -143,7 +136,9 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_nuevoRecurso) {
             // Handle the camera action
         } else if (id == R.id.nav_trazarRecurso) {
-
+            Intent sendActivity = new Intent(MainActivity.this, SendActivity.class);
+            sendActivity.putExtra("Usuario",user);
+            startActivity(sendActivity);
         } else if (id == R.id.nav_verRecurso) {
             //LLamado a elegir recurso primero y despues mostrar en mapa
             //Intent mainActivity = new Intent(MainActivity.this,MapsActivity.class);
@@ -151,11 +146,7 @@ public class MainActivity extends AppCompatActivity
             mainActivity.putExtra("Persona",user);
             startActivity(mainActivity);
 
-        } else if (id == R.id.nav_manage) {
-
         } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
 
         }
 
@@ -164,6 +155,5 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    /* Aqui empieza la Clase Localizacion */
 
 }

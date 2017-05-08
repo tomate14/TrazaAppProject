@@ -1,24 +1,55 @@
 package Funcionalidad;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.io.Serializable;
 
-public class Persona implements Serializable {
+import Query.AbsQuery;
+import Query.QueryPersona;
 
-	private int id; //identificador unico
-	private String pass;
-	private String user;
-	private String nombre;
-	private String telefono;
-	private String domicilio;
-	private int ciudad;
-	private boolean admin;
+public class Persona extends Elemento implements Serializable {
+
+    private int id; //identificador unico
+    private String pass;
+    private String user;
+    private String nombre;
+    private String telefono;
+    private String domicilio;
+    private int ciudad;
+    private boolean admin;
     private String email;
-	private double latitude;
-	private double longitude;
-	private String direccion;
+    private String direccion;
+	private String Web;
+
+    public Persona(int id, String u, String pass, String nombre, String telefono, String domicilio,
+                   int ciudad, boolean admin, String email, double lat, double lon, String web) {
+        this.id        = id;
+        this.pass      = pass;
+        this.nombre    = nombre;
+        this.telefono  = telefono;
+        this.domicilio = domicilio;
+        this.ciudad    = ciudad;
+        this.user      = u;
+        this.admin     = admin;
+        this.email     = email;
+        this.latitude  = lat;
+        this.longitude = lon;
+        this.Web = web;
+    }
+
+	public Persona(CharSequence user, String pass, CharSequence nombre,
+				   CharSequence email, CharSequence address, CharSequence tel,
+				   CharSequence web, int itemSpinner) {
+		this.user = String.valueOf(user);
+		this.pass = pass;
+		this.nombre = String.valueOf(nombre);
+		this.email = String.valueOf(email);
+		this.direccion = String.valueOf(address);
+		this.telefono = String.valueOf(tel);
+		this.Web = String.valueOf(web);
+		this.query = new QueryPersona();
+
+
+	}
+
 
 	public double getLatitude() {
 		return latitude;
@@ -40,10 +71,10 @@ public class Persona implements Serializable {
 		return longitude;
 	}
 
+
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
-
 
 	public int getId() {
 		return id;
@@ -65,10 +96,10 @@ public class Persona implements Serializable {
 		return nombre;
 	}
 
+
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
-
 
 	public String getTelefono() {
 		return telefono;
@@ -82,10 +113,10 @@ public class Persona implements Serializable {
 		return domicilio;
 	}
 
+
 	public void setDomicilio(String domicilio) {
 		this.domicilio = domicilio;
 	}
-
 
 	public String getUser() {
 		return user;
@@ -99,10 +130,10 @@ public class Persona implements Serializable {
 		this.ciudad = ciudad;
 	}
 
+
 	public void setUser(String user) {
 		this.user = user;
 	}
-	
 
 	public boolean isAdmin() {
 		return admin;
@@ -120,30 +151,34 @@ public class Persona implements Serializable {
 		this.admin = admin;
 	}
 
-	public Persona(){
+    public String getIdentifier(){
+     return this.email;
+    }
 
+	public String getWeb() {
+		return Web;
 	}
-	public Persona(int id, String u, String pass, String nombre, String telefono, String domicilio,
-				   int ciudad, boolean admin,String email,double lat, double lon) {
-		this.id        = id;
-		this.pass      = pass;
-		this.nombre    = nombre;
-		this.telefono  = telefono;
-		this.domicilio = domicilio;
-		this.ciudad    = ciudad;
-		this.user      = u;
-		this.admin     = admin;
-        this.email     = email;
-		this.latitude  = lat;
-		this.longitude = lon;
+
+	public void setWeb(String web) {
+		Web = web;
 	}
+
+	public AbsQuery getQuery(){
+		return this.query;
+	//public String getQuery(){
+
+		/*return   "INSERT INTO USERS(id,role_id,username,password,name,email,address,phone," +
+                                   "location_id,website,latitude, longitude)" +
+                "  VALUES(`id`,2,'"+this.getUser()+"','"+this.getPass()+"'," +
+                "'"+this.getNombre()+"','"+this.getEmail()+"'," +
+                "'"+this.getDireccion()+"','"+this.getTelefono()+"'," +
+                "'"+this.getCiudad()+"','"+this.getWeb()+"',"+
+                " "+this.getLatitude()+","+" "+this.getLongitude()+")";*/
+	}
+
 
 	public String toString(){
-		return "User = "+this.id+", "+this.pass+", "+this.nombre+", "+this.telefono+", "+this.domicilio+", "+this.ciudad+", "+
-				this.user+", "+this.admin+", "+this.email+", "+this.latitude+", "+this.longitude;
-	};
-
-
-
+		return this.email+" , "+this.nombre+" ; ";
+	}
 
 }

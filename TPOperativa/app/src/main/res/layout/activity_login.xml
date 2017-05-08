@@ -18,8 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:background="@color/colorAccent"
-        android:visibility="gone" />
+        android:visibility="visible" />
 
     <ScrollView
         android:id="@+id/login_form"
@@ -83,10 +82,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.80"
-                android:background="@color/colorAccent"
+                android:background="@color/colorPrimary"
                 android:text="Registrarse"
-                android:textSize="20dp"
-                android:textColor="@color/common_google_signin_btn_text_dark_default" />
+                android:textColor="@color/common_google_signin_btn_text_dark_default"
+                android:textSize="20dp" />
 
             <Button
                 android:id="@+id/email_sign_in_button"
@@ -94,10 +93,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@color/colorAccent"
+                android:background="@color/colorPrimary"
                 android:text="@string/action_sign_in"
-                android:textSize="20dp"
-                android:textColor="@android:color/background_light" />
+                android:textColor="@android:color/background_light"
+                android:textSize="20dp" />
 
         </LinearLayout>
     </ScrollView>
