@@ -30,11 +30,17 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import Funcionalidad.MySQL;
@@ -118,12 +124,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        Log.d("CREANDO PERMISO", "ASDQWE");
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, 1000);
-            Log.d("MAXIIIIIIIIIIII", "REQUESTPERMISO");
-        }
-
 
     }
 
@@ -170,23 +170,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         }
 
-        /*Log.d("MAXIIIIIIIIIIII", "ANTES DEL LOCATIONSTART");
-        if (requestCode == 1000) {
-            Log.d("MAXIIIIIIIIIIII", "FUERA");
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("MAXIIIIIIIIIIII", "DENTRO");
-                //locationStart();
-                return;
-            }
-        }*/
     }
 
 
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
     private void attemptLogin() {
         if (mAuthTask != null) {
             return;
@@ -222,16 +208,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView.requestFocus();
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-
+            showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute();
-            showProgress(true);
+
 
         }
     }
@@ -254,6 +238,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
@@ -346,7 +331,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         private final String mEmail;
         private final String mPassword;
         private Persona user;
-
+        private Toast text;
 
         UserLoginTask(String email, String password) {
             mEmail = email;
@@ -359,7 +344,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // TODO: attempt authentication against a network service.
 
             try {
-                Log.d("CONECTANDO","INICIANDO CONEXION");
+                Log.d("CONECANDO","INICIANDO CONEXION");
 
                 String query = "SELECT * FROM USERS " +
                         "WHERE email='"+this.mEmail+"'" +
@@ -380,7 +365,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             resultSet.getString("password"),resultSet.getString("name"),
                             resultSet.getString("phone"),resultSet.getString("address"),
                             resultSet.getInt("location_id"),admin,resultSet.getString("email"),
-                            resultSet.getDouble("latitude"),resultSet.getDouble("longitude"));
+                            resultSet.getDouble("latitude"),resultSet.getDouble("longitude"),resultSet.getString("website"));
                     user.setDireccion(resultSet.getString("address"));
 
 
@@ -401,8 +386,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
-                //Iria en el register mas que nada
-                //locationStart(user);
                 Intent mainActivity = new Intent(LoginActivity.this,MainActivity.class);
                 mainActivity.putExtra("Persona",user);
                 startActivity(mainActivity);
@@ -416,7 +399,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
         @Override
         protected void onPreExecute() {
-            Log.i("Inside AsyncTask", "myAsyncTask is abut to start...");
+            text.makeText(LoginActivity.this,"Cargando..",Toast.LENGTH_SHORT).show();
         }
         @Override
         protected void onCancelled() {

@@ -1,12 +1,5 @@
 package com.example.maxi.tpoperativa;
 
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-
-import android.os.AsyncTask;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,12 +11,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import Funcionalidad.Elemento;
 import Funcionalidad.Persona;
+import TareasAsincronas.AddElementTask;
 import TareasAsincronas.SpinnerTask;
 
 public class RegisterActivity extends AppCompatActivity{
@@ -136,9 +129,10 @@ public class RegisterActivity extends AppCompatActivity{
     }
     private void createUser(){
         if(verifyDate()){
-            AddUserTask add = new AddUserTask(Usuario.getText(),Password.getText().toString(),
+            Elemento element = new Persona(Usuario.getText(),Password.getText().toString(),
                     Nombre.getText(),Email.getText(),Direccion.getText(),Telefono.getText(),
                     Website.getText(),itemSpinner);
+            AddElementTask add = new AddElementTask(element,this);
             add.execute();
             finish();
 
@@ -150,7 +144,7 @@ public class RegisterActivity extends AppCompatActivity{
     }
     private void updateSpinner(){
         Log.d("CIUDAD:","HAGO CLICK");
-        SpinnerTask citiesTask = new SpinnerTask(this.spinnerCities,RegisterActivity.this);
+        SpinnerTask citiesTask = new SpinnerTask(this.spinnerCities,RegisterActivity.this,"name");
 
         String query = "SELECT * " +
                 "FROM locations";
@@ -168,141 +162,8 @@ public class RegisterActivity extends AppCompatActivity{
         return false;
     }
 
-    public class AddUserTask extends AsyncTask<Void, Void, Boolean> implements LocationListener{
-        private Boolean result;
-        //nuevo
-        private Persona user;
-        private LocationManager lm;
-
-        public Boolean getResult() {
-            return result;
-        }
-
-        public void setResult(Boolean result) {
-            this.result = result;
-        }
 
 
-        public AddUserTask(CharSequence Usuario, String Password, CharSequence Nombre, CharSequence Email,
-                           CharSequence Direccion, CharSequence Telefono, CharSequence Website,
-                           int item){
-            this.user = new Persona();
-            this.user.setUser(String.valueOf(Usuario));
-            this.user.setPass(Password);
-            this.user.setNombre(String.valueOf(Nombre));
-            this.user.setEmail(String.valueOf(Email));
-            this.user.setDireccion(String.valueOf(Direccion));
-            this.user.setTelefono(String.valueOf(Telefono));
-            this.user.setCiudad(item);
-
-
-
-        };
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                String query = "SELECT * FROM USERS " +
-                        "WHERE email='"+Email+"'";
-                ResultSet resultSet = LoginActivity.Sql.getResultset(query);
-                if(resultSet.next()) {
-                    return false;
-                }
-                return true;
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            return true;
-        }
-        protected void onPostExecute(final Boolean sucess) {
-            super.onPostExecute(sucess);
-            Log.d("Resultado dentro",String.valueOf(result));
-            if (sucess) {
-                try {
-                    if (ContextCompat.checkSelfPermission(RegisterActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                            || ContextCompat.checkSelfPermission(RegisterActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                        lm = (LocationManager) getSystemService(RegisterActivity.LOCATION_SERVICE);
-
-                        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-                        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-                    }
-                } catch (Throwable throwable) {
-                    throwable.printStackTrace();
-                }
-                //GENERAR LAS COORDENADAS
-            } else {
-                    //Toast del email ya existe
-
-            }
-
-
-        }
-
-        @Override
-        public void onLocationChanged(Location location) {
-            lm.removeUpdates(this);
-
-            double longitud = 0;
-            double latitud = 0;
-
-            if (location != null) {
-                longitud = location.getLongitude();
-                latitud = location.getLatitude();
-                this.user.setLatitude(latitud);
-                this.user.setLongitude(longitud);
-            }
-            Log.d("Persona",this.user.toString());
-            TaskInsert task = new TaskInsert(this.user);
-            task.execute();
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-    }
-    public class TaskInsert extends AsyncTask<Void, Void, Integer> {
-
-        private Persona user;
-
-        public TaskInsert(Persona user){
-            this.user = user;
-        }
-
-        protected Integer doInBackground(Void... params) {
-            Log.d("Persona antes del insert",this.user.toString());
-            String query = "INSERT INTO USERS(id,role_id,username,password,name,email,"+
-                    "address,phone,location_id,website,latitude, longitude)" +
-                    "          VALUES(`id`,2,'"+this.user.getUser()+"','"+this.user.getPass()+"'," +
-                    "'"+this.user.getNombre()+"','"+this.user.getEmail()+"'," +
-                    "'"+this.user.getDireccion()+"','"+this.user.getTelefono()+"'," +
-                    "'"+this.user.getCiudad()+"','"+Website+"',"+
-                    " "+this.user.getLatitude()+","+" "+this.user.getLongitude()+")";
-
-            Log.d("Consulta",query);
-            LoginActivity.Sql.executeQuery(query);
-            return LoginActivity.Sql.executeQuery(query);
-        }
-        protected void onPostExecute(Integer insert) {
-            super.onPostExecute(insert);
-            if (insert != -1) {
-                Toast toast = Toast.makeText(getApplicationContext(),
-                        "Registrado Correctamente.", Toast.LENGTH_SHORT);
-                toast.show();
-            }
-            RegisterActivity.this.finish();
-        }
-    }
 
 
 }

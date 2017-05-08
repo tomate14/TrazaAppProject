@@ -9,16 +9,16 @@
 
 
         <ScrollView
-            android:layout_width="489dp"
+            android:layout_width="585dp"
             android:layout_height="810dp"
             android:clickable="false"
-            tools:layout_editor_absoluteX="52dp"
+            tools:layout_editor_absoluteX="8dp"
             tools:layout_editor_absoluteY="8dp">
 
                 <LinearLayout
                     android:id="@+id/simple_spinner_dropdown_item"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:weightSum="3">
 
@@ -102,7 +102,8 @@
                             android:id="@+id/spinner_resource"
                             android:layout_width="match_parent"
                             android:layout_height="30dp"
-                            android:background="@android:drawable/screen_background_light" />
+                            android:background="@android:drawable/btn_dropdown"
+                            android:spinnerMode="dialog" />
 
                         <TextView
                             android:id="@+id/sepa2"

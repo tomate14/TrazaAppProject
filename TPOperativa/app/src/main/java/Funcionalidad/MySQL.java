@@ -17,42 +17,46 @@ import java.sql.Statement;
  */
 
 public class MySQL{
-    private String dateBase;
-    private String user;
-    private String pass;
+    private String mysqldateBase;
+    private String mysqluser;
+    private String mysqlpass;
+    private String mysqlIP;
+    private String mysqlPort;
     private Connection conn;
     private Statement st;
 
 
 
     public MySQL(String db, String user, String pass) {
-        this.user = user;
-        this.pass = pass;
-        this.dateBase = db;
+        this.mysqluser     = user;
+        this.mysqlpass     = pass;
+        this.mysqldateBase = db;
+        this.mysqlIP       = "192.168.1.38";
+        this.mysqlPort     = "3306";
     }
 
     public String getDateBase() {
-        return dateBase;
+        return mysqldateBase;
     }
 
     public void setDateBase(String dateBase) {
-        this.dateBase = dateBase;
+        this.mysqldateBase = dateBase;
     }
 
     public String getUser() {
-        return user;
+        return mysqluser;
     }
 
     public void setUser(String user) {
-        this.user = user;
+        this.mysqluser = user;
     }
 
     public String getPass() {
-        return pass;
+        return mysqlpass;
     }
 
     public void setPass(String pass) {
-        this.pass = pass;
+        this.mysqlpass = pass;
     }
 
     public void CloseConecction(){
@@ -74,8 +78,8 @@ public class MySQL{
             //http://dbases.exa.unicen.edu.ar:8080/phpgadmin/
             //unc_248361
             //kobebryant
-            conn = DriverManager.getConnection("jdbc:mysql://192.168.0.6:3306/" +
-                    this.dateBase, this.user, this.pass);
+            conn = DriverManager.getConnection("jdbc:mysql://"+this.mysqlIP+":"+this.mysqlPort+ "/" +
+                    this.mysqldateBase, this.mysqluser, this.mysqlpass);
 
             st = conn.createStatement();
             st.executeUpdate("USE operativa");
@@ -104,6 +108,7 @@ public class MySQL{
     public int executeQuery(String s){
         try {
             crearConn();
+            Log.d("RETORNO","CONSULTA = "+s);
             int rs = st.executeUpdate(s);
             Log.d("Retorno","Valor= "+rs);
             return rs;

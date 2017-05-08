@@ -22,29 +22,31 @@ import java.util.List;
  */
 
 public class SpinnerTask extends AsyncTask<String, Void, ResultSet> {
-    private ResultSet ciudades;
-    private List listCities = new ArrayList<>();
+    private ResultSet result;
+    private List list = new ArrayList<>();
     private Spinner spinnerCities;
     private AppCompatActivity register;
+    private String search_column;
     private  Toast text;
 
-    public SpinnerTask(Spinner spinner, AppCompatActivity activity){
+    public SpinnerTask(Spinner spinner, AppCompatActivity activity, String column){
         this.register = activity;
         this.spinnerCities = spinner;
+        this.search_column = column;
     }
 
     @Override
     protected ResultSet doInBackground(String... params) {
         Log.d("PARAMETRO",params[0]);
 
-        this.ciudades = LoginActivity.Sql.getResultset(params[0]);
-        return ciudades;
+        this.result = LoginActivity.Sql.getResultset(params[0]);
+        return result;
     }
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        Log.d("cargando","Cargando ciudades");
-        this.text = Toast.makeText(register,"Cargando ciudades",Toast.LENGTH_SHORT);
+        Log.d("cargando","Cargando");
+        this.text = Toast.makeText(register,"Cargando",Toast.LENGTH_SHORT);
         this.text.setGravity(Gravity.CENTER, 0, 0);
         this.text.show();
     }
@@ -52,16 +54,17 @@ public class SpinnerTask extends AsyncTask<String, Void, ResultSet> {
     protected void onPostExecute(final ResultSet cities) {
         try {
             int index = 0;
+            Log.d("COLUMNA",this.search_column);
             while (cities.next()){
-                listCities.add(cities.getString("name"));
-                Log.d("Prueba",listCities.get(index).toString());
+                list.add(cities.getString(this.search_column));
+                Log.d("Prueba",list.get(index).toString());
                 index+=1;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         ArrayAdapter spinner_adapter;
-        spinner_adapter = new ArrayAdapter(this.register, android.R.layout.simple_spinner_item, listCities);
+        spinner_adapter = new ArrayAdapter(this.register, android.R.layout.simple_spinner_item, list);
         spinner_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCities.setAdapter(spinner_adapter);
     }
